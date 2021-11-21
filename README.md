@@ -1,5 +1,5 @@
 # fabric 2.3 for Raspberry Pi
-fabric 2.3版本的docker容器主要基于alpine版本，这个版本支持arm，arm64,理论上支持Raspberry Pi 3B 或Raspberry Pi 3B+。
+fabric 2.3版本的docker容器主要基于alpine版本，这个版本支持arm，arm64,理论上支持Raspberry Pi 3B 或Raspberry Pi 3B+。<br/>
 但是官方并没有针对此平台进行优化，同时有很多库依赖问题导致编译出错，此版本对fabirc-2.3进行修改，适配，可直接编译，没有花里胡哨的东西。
 # 编译二进制
 将此项目clone到本地
