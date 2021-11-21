@@ -54,9 +54,9 @@ func GenerateSignerConfig(roleMask int, ouString string, enrollmentId string, re
 	}
 
 	attrs[msp.AttributeIndexOU] = idemix.HashModOrder([]byte(ouString))
-	attrs[msp.AttributeIndexRole] = FP256BN.NewBIGint(roleMask)
+	attrs[msp.AttributeIndexRole] = FP256BN.NewBIGint(int64(roleMask))
 	attrs[msp.AttributeIndexEnrollmentId] = idemix.HashModOrder([]byte(enrollmentId))
-	attrs[msp.AttributeIndexRevocationHandle] = FP256BN.NewBIGint(revocationHandle)
+	attrs[msp.AttributeIndexRevocationHandle] = FP256BN.NewBIGint(int64(revocationHandle))
 
 	rng, err := idemix.GetRand()
 	if err != nil {
@@ -76,7 +76,7 @@ func GenerateSignerConfig(roleMask int, ouString string, enrollmentId string, re
 	}
 
 	// NOTE currently, idemixca creates CRI's with "ALG_NO_REVOCATION"
-	cri, err := idemix.CreateCRI(revKey, []*FP256BN.BIG{FP256BN.NewBIGint(revocationHandle)}, 0, idemix.ALG_NO_REVOCATION, rng)
+	cri, err := idemix.CreateCRI(revKey, []*FP256BN.BIG{FP256BN.NewBIGint(int64(revocationHandle))}, 0, idemix.ALG_NO_REVOCATION, rng)
 	if err != nil {
 		return nil, err
 	}
