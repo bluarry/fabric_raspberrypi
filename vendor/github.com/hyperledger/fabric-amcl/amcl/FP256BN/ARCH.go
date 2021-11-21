@@ -22,5 +22,5 @@ under the License.
 package FP256BN
 
 type Chunk int64
-
+type uint=uint64
 const CHUNK int = 64 /* Set word size */

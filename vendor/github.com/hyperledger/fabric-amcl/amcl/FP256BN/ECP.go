@@ -361,7 +361,7 @@ func (E *ECP) ToBytes(b []byte, compress bool) {
 	W.Copy(E)
 	W.Affine()
 	W.x.redc().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		b[i+1] = t[i]
 	}
 
@@ -381,7 +381,7 @@ func (E *ECP) ToBytes(b []byte, compress bool) {
 	b[0] = 0x04
 
 	W.y.redc().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		b[i+MB+1] = t[i]
 	}
 }
@@ -392,7 +392,7 @@ func ECP_fromBytes(b []byte) *ECP {
 	MB := int(MODBYTES)
 	p := NewBIGints(Modulus)
 
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = b[i+1]
 	}
 	px := FromBytes(t[:])
@@ -405,7 +405,7 @@ func ECP_fromBytes(b []byte) *ECP {
 	}
 
 	if b[0] == 0x04 {
-		for i := 0; i < MB; i++ {
+		for i := int(0); i < MB; i++ {
 			t[i] = b[i+MB+1]
 		}
 		py := FromBytes(t[:])
@@ -1035,7 +1035,7 @@ func (E *ECP) mul(e *BIG) *ECP {
 		nb := 1 + (t.nbits()+3)/4
 
 		// convert exponent to signed 4-bit window
-		for i := 0; i < nb; i++ {
+		for i := int(0); i < nb; i++ {
 			w[i] = int8(t.lastbits(5) - 16)
 			t.dec(int(w[i]))
 			t.norm()
@@ -1133,7 +1133,7 @@ func (E *ECP) Mul2(e *BIG, Q *ECP, f *BIG) *ECP {
 	nb := 1 + (mt.nbits()+1)/2
 
 	// convert exponent to signed 2-bit window
-	for i := 0; i < nb; i++ {
+	for i := int(0); i < nb; i++ {
 		a := (te.lastbits(3) - 4)
 		te.dec(int(a))
 		te.norm()

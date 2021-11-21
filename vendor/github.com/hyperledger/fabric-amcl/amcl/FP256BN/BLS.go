@@ -25,10 +25,10 @@ import "github.com/hyperledger/fabric-amcl/amcl"
 
 
 
-const BFS int = int(MODBYTES)
-const BGS int = int(MODBYTES)
-const BLS_OK int = 0
-const BLS_FAIL int = -1
+const BFS int64 = int64(MODBYTES)
+const BGS int64 = int64(MODBYTES)
+const BLS_OK int64 = 0
+const BLS_FAIL int64 = -1
 
 /* hash a message to an ECP point, using SHA3 */
 

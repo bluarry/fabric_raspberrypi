@@ -41,6 +41,7 @@ const SHA3_SHAKE256 int = 32
 
 const sha3_ROUNDS int = 24
 
+
 var sha3_RC = [24]uint64{
 	0x0000000000000001, 0x0000000000008082, 0x800000000000808A, 0x8000000080008000,
 	0x000000000000808B, 0x0000000080000001, 0x8000000080008081, 0x8000000000008009,
@@ -68,7 +69,7 @@ func (H *SHA3) transform() { /* basic transformation step */
 	var d [5]uint64
 	var b [5][5]uint64
 
-	for k := 0; k < sha3_ROUNDS; k++ {
+	for k := int(0); k < sha3_ROUNDS; k++ {
 		c[0] = H.s[0][0] ^ H.s[0][1] ^ H.s[0][2] ^ H.s[0][3] ^ H.s[0][4]
 		c[1] = H.s[1][0] ^ H.s[1][1] ^ H.s[1][2] ^ H.s[1][3] ^ H.s[1][4]
 		c[2] = H.s[2][0] ^ H.s[2][1] ^ H.s[2][2] ^ H.s[2][3] ^ H.s[2][4]
@@ -163,7 +164,7 @@ func (H *SHA3) Process(byt byte) { /* process the next message byte */
 func (H *SHA3) Squeeze(buff []byte, olen int) {
 	//	olen:=len(buff)
 	done := false
-	m := 0
+	m := int(0)
 	/* extract by columns */
 	for {
 		for j := 0; j < 5; j++ {
@@ -210,7 +211,7 @@ func (H *SHA3) Hash(hash []byte) { /* generate a SHA3 hash of appropriate size *
 	H.Squeeze(hash, H.len)
 }
 
-func (H *SHA3) Shake(hash []byte, olen int) { /* generate a SHA3 hash of appropriate size */
+func (H *SHA3) Shake(hash []byte, olen int64) { /* generate a SHA3 hash of appropriate size */
 	q := H.rate - int(H.length%uint64(H.rate))
 	if q == 1 {
 		H.Process(0x9f)
@@ -221,7 +222,7 @@ func (H *SHA3) Shake(hash []byte, olen int) { /* generate a SHA3 hash of appropr
 		}
 		H.Process(0x80)
 	}
-	H.Squeeze(hash, olen)
+	H.Squeeze(hash, int(olen))
 }
 
 /* test program: should produce digest */

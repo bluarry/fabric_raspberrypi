@@ -178,20 +178,20 @@ func (E *ECP2) ToBytes(b []byte) {
 	W.Affine()
 
 	W.x.GetA().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		b[i] = t[i]
 	}
 	W.x.GetB().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		b[i+MB] = t[i]
 	}
 
 	W.y.GetA().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		b[i+2*MB] = t[i]
 	}
 	W.y.GetB().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		b[i+3*MB] = t[i]
 	}
 }
@@ -201,21 +201,21 @@ func ECP2_fromBytes(b []byte) *ECP2 {
 	var t [int(MODBYTES)]byte
 	MB := int(MODBYTES)
 
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = b[i]
 	}
 	ra := FromBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = b[i+MB]
 	}
 	rb := FromBytes(t[:])
 	rx := NewFP2bigs(ra, rb)
 
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = b[i+2*MB]
 	}
 	ra = FromBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = b[i+3*MB]
 	}
 	rb = FromBytes(t[:])
@@ -516,7 +516,7 @@ func (E *ECP2) mul(e *BIG) *ECP2 {
 
 	nb := 1 + (t.nbits()+3)/4
 	/* convert exponent to signed 4-bit window */
-	for i := 0; i < nb; i++ {
+	for i := int(0); i < nb; i++ {
 		w[i] = int8(t.lastbits(5) - 16)
 		t.dec(int(w[i]))
 		t.norm()
@@ -600,13 +600,13 @@ func mul4(Q []*ECP2, u []*BIG) *ECP2 {
 
 	// Sign pivot
 	s[nb-1] = 1
-	for i := 0; i < nb-1; i++ {
+	for i := int(0); i < nb-1; i++ {
 		t[0].fshr(1)
 		s[i] = 2*int8(t[0].parity()) - 1
 	}
 
 	// Recoded exponent
-	for i := 0; i < nb; i++ {
+	for i := int(0); i < nb; i++ {
 		w[i] = 0
 		k := 1
 		for j := 1; j < 4; j++ {

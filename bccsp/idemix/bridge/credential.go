@@ -53,7 +53,7 @@ func (c *Credential) Sign(key handlers.IssuerSecretKey, credentialRequest []byte
 		case bccsp.IdemixBytesAttribute:
 			attrValues[i] = cryptolib.HashModOrder(attributes[i].Value.([]byte))
 		case bccsp.IdemixIntAttribute:
-			attrValues[i] = FP256BN.NewBIGint(attributes[i].Value.(int))
+			attrValues[i] = FP256BN.NewBIGint(int64(attributes[i].Value.(int)))
 		default:
 			return nil, errors.Errorf("attribute type not allowed or supported [%v] at position [%d]", attributes[i].Type, i)
 		}
@@ -103,7 +103,7 @@ func (*Credential) Verify(sk handlers.Big, ipk handlers.IssuerPublicKey, credent
 			}
 		case bccsp.IdemixIntAttribute:
 			if !bytes.Equal(
-				cryptolib.BigToBytes(FP256BN.NewBIGint(attributes[i].Value.(int))),
+				cryptolib.BigToBytes(FP256BN.NewBIGint(int64(attributes[i].Value.(int)))),
 				cred.Attrs[i]) {
 				return errors.Errorf("credential does not contain the correct attribute value at position [%d]", i)
 			}

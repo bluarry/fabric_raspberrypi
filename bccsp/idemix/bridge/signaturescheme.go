@@ -122,7 +122,7 @@ func (*SignatureScheme) Verify(ipk handlers.IssuerPublicKey, signature, digest [
 			attrValues[i] = cryptolib.HashModOrder(attributes[i].Value.([]byte))
 		case bccsp.IdemixIntAttribute:
 			disclosure[i] = 1
-			attrValues[i] = FP256BN.NewBIGint(attributes[i].Value.(int))
+			attrValues[i] = FP256BN.NewBIGint(int64(attributes[i].Value.(int)))
 		default:
 			err = errors.Errorf("attribute type not allowed or supported [%v] at position [%d]", attributes[i].Type, i)
 		}

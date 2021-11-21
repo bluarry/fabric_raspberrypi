@@ -46,7 +46,7 @@ func mpin_hash(sha int, c *FP4, U *ECP) []byte {
 	var h []byte
 
 	c.geta().GetA().ToBytes(w[:])
-	for i := 0; i < MFS; i++ {
+	for i := int(0); i < MFS; i++ {
 		t[i] = w[i]
 	}
 	c.geta().GetB().ToBytes(w[:])
@@ -71,17 +71,17 @@ func mpin_hash(sha int, c *FP4, U *ECP) []byte {
 		t[i] = w[i-5*MFS]
 	}
 
-	if sha == amcl.SHA256 {
+	if sha == int(32) {
 		H := amcl.NewHASH256()
 		H.Process_array(t[:])
 		h = H.Hash()
 	}
-	if sha == amcl.SHA384 {
+	if sha == int(48) {
 		H := amcl.NewHASH384()
 		H.Process_array(t[:])
 		h = H.Hash()
 	}
-	if sha == amcl.SHA512 {
+	if sha == int(64) {
 		H := amcl.NewHASH512()
 		H.Process_array(t[:])
 		h = H.Hash()
@@ -90,7 +90,7 @@ func mpin_hash(sha int, c *FP4, U *ECP) []byte {
 		return nil
 	}
 	R := make([]byte, AESKEY)
-	for i := 0; i < AESKEY; i++ {
+	for i := int(0); i < AESKEY; i++ {
 		R[i] = h[i]
 	}
 	return R
@@ -100,7 +100,7 @@ func mpin_hash(sha int, c *FP4, U *ECP) []byte {
 
 func mhashit(sha int, n int32, ID []byte) []byte {
 	var R []byte
-	if sha == amcl.SHA256 {
+	if sha == int(32) {
 		H := amcl.NewHASH256()
 		if n != 0 {
 			H.Process_num(n)
@@ -108,7 +108,7 @@ func mhashit(sha int, n int32, ID []byte) []byte {
 		H.Process_array(ID)
 		R = H.Hash()
 	}
-	if sha == amcl.SHA384 {
+	if sha == int(48) {
 		H := amcl.NewHASH384()
 		if n != 0 {
 			H.Process_num(n)
@@ -116,7 +116,7 @@ func mhashit(sha int, n int32, ID []byte) []byte {
 		H.Process_array(ID)
 		R = H.Hash()
 	}
-	if sha == amcl.SHA512 {
+	if sha == int(64) {
 		H := amcl.NewHASH512()
 		if n != 0 {
 			H.Process_num(n)
@@ -130,14 +130,14 @@ func mhashit(sha int, n int32, ID []byte) []byte {
 	const RM int = int(MODBYTES)
 	var W [RM]byte
 	if sha >= RM {
-		for i := 0; i < RM; i++ {
+		for i := int(0); i < RM; i++ {
 			W[i] = R[i]
 		}
 	} else {
-		for i := 0; i < sha; i++ {
+		for i := int(0); i < sha; i++ {
 			W[i+RM-sha] = R[i]
 		}
-		for i := 0; i < RM-sha; i++ {
+		for i := int(0); i < RM-sha; i++ {
 			W[i] = 0
 		}
 	}
@@ -173,7 +173,7 @@ func emap(u *BIG, cb int) *ECP {
 func unmap(u *BIG, P *ECP) int {
 	s := P.GetS()
 	var R *ECP
-	r := 0
+	r := int(0)
 	x := P.GetX()
 	u.copy(x)
 	for true {
@@ -198,11 +198,11 @@ func MPIN_HASH_ID(sha int, ID []byte) []byte {
 func MPIN_ENCODING(rng *amcl.RAND, E []byte) int {
 	var T [MFS]byte
 
-	for i := 0; i < MFS; i++ {
+	for i := int(0); i < MFS; i++ {
 		T[i] = E[i+1]
 	}
 	u := FromBytes(T[:])
-	for i := 0; i < MFS; i++ {
+	for i := int(0); i < MFS; i++ {
 		T[i] = E[i+MFS+1]
 	}
 	v := FromBytes(T[:])
@@ -227,11 +227,11 @@ func MPIN_ENCODING(rng *amcl.RAND, E []byte) int {
 	v.inc(m + 1)
 	E[0] = byte(su + 2*sv)
 	u.ToBytes(T[:])
-	for i := 0; i < MFS; i++ {
+	for i := int(0); i < MFS; i++ {
 		E[i+1] = T[i]
 	}
 	v.ToBytes(T[:])
-	for i := 0; i < MFS; i++ {
+	for i := int(0); i < MFS; i++ {
 		E[i+MFS+1] = T[i]
 	}
 
@@ -245,11 +245,11 @@ func MPIN_DECODING(D []byte) int {
 		return INVALID_POINT
 	}
 
-	for i := 0; i < MFS; i++ {
+	for i := int(0); i < MFS; i++ {
 		T[i] = D[i+1]
 	}
 	u := FromBytes(T[:])
-	for i := 0; i < MFS; i++ {
+	for i := int(0); i < MFS; i++ {
 		T[i] = D[i+MFS+1]
 	}
 	v := FromBytes(T[:])
@@ -263,11 +263,11 @@ func MPIN_DECODING(D []byte) int {
 	v = P.GetY()
 	D[0] = 0x04
 	u.ToBytes(T[:])
-	for i := 0; i < MFS; i++ {
+	for i := int(0); i < MFS; i++ {
 		D[i+1] = T[i]
 	}
 	v.ToBytes(T[:])
-	for i := 0; i < MFS; i++ {
+	for i := int(0); i < MFS; i++ {
 		D[i+MFS+1] = T[i]
 	}
 
@@ -577,25 +577,25 @@ func MPIN_KANGAROO(E []byte, F []byte) int {
 
 	var table []*FP12
 	var i int
-	s := 1
-	for m := 0; m < TS; m++ {
+	s := int(1)
+	for m := int(0); m < TS; m++ {
 		distance[m] = s
 		table = append(table, NewFP12copy(t))
 		s *= 2
 		t.usqr()
 	}
 	t.one()
-	dn := 0
-	for j := 0; j < TRAP; j++ {
+	dn := int(0)
+	for j := int(0); j < TRAP; j++ {
 		i = t.geta().geta().GetA().lastbits(20) % TS
 		t.Mul(table[i])
 		dn += distance[i]
 	}
 	gf.Copy(t)
 	gf.conj()
-	steps := 0
-	dm := 0
-	res := 0
+	steps := int(0)
+	dm := int(0)
+	res := int(0)
 	for dm-dn < int(MAXPIN) {
 		steps++
 		if steps > 4*TRAP {
@@ -716,7 +716,7 @@ func MPIN_CLIENT_KEY(sha int, G1 []byte, G2 []byte, pin int, R []byte, X []byte,
 
 	t := mpin_hash(sha, c, W)
 
-	for i := 0; i < AESKEY; i++ {
+	for i := int(0); i < AESKEY; i++ {
 		CK[i] = t[i]
 	}
 
@@ -763,7 +763,7 @@ func MPIN_SERVER_KEY(sha int, Z []byte, SST []byte, W []byte, H []byte, HID []by
 
 	t := mpin_hash(sha, c, U)
 
-	for i := 0; i < AESKEY; i++ {
+	for i := int(0); i < AESKEY; i++ {
 		SK[i] = t[i]
 	}
 
@@ -787,7 +787,7 @@ func MPIN_GET_Y(sha int, TimeValue int, xCID []byte, Y []byte) {
 
 /* One pass MPIN Client */
 func MPIN_CLIENT(sha int, date int, CLIENT_ID []byte, RNG *amcl.RAND, X []byte, pin int, TOKEN []byte, SEC []byte, xID []byte, xCID []byte, PERMIT []byte, TimeValue int, Y []byte) int {
-	rtn := 0
+	rtn := int(0)
 
 	var pID []byte
 	if date == 0 {
@@ -813,7 +813,7 @@ func MPIN_CLIENT(sha int, date int, CLIENT_ID []byte, RNG *amcl.RAND, X []byte, 
 
 /* One pass MPIN Server */
 func MPIN_SERVER(sha int, date int, HID []byte, HTID []byte, Y []byte, SST []byte, xID []byte, xCID []byte, SEC []byte, E []byte, F []byte, CID []byte, TimeValue int) int {
-	rtn := 0
+	rtn := int(0)
 
 	var pID []byte
 	if date == 0 {

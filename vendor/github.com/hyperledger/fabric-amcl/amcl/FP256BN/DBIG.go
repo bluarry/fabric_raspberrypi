@@ -27,7 +27,7 @@ import "strconv"
 
 func NewDBIG() *DBIG {
 	b := new(DBIG)
-	for i := 0; i < DNLEN; i++ {
+	for i := int(0); i < DNLEN; i++ {
 		b.w[i] = 0
 	}
 	return b
@@ -35,7 +35,7 @@ func NewDBIG() *DBIG {
 
 func NewDBIGcopy(x *DBIG) *DBIG {
 	b := new(DBIG)
-	for i := 0; i < DNLEN; i++ {
+	for i := int(0); i < DNLEN; i++ {
 		b.w[i] = x.w[i]
 	}
 	return b
@@ -43,7 +43,7 @@ func NewDBIGcopy(x *DBIG) *DBIG {
 
 func NewDBIGscopy(x *BIG) *DBIG {
 	b := new(DBIG)
-	for i := 0; i < NLEN-1; i++ {
+	for i := int(0); i < NLEN-1; i++ {
 		b.w[i] = x.w[i]
 	}
 	b.w[NLEN-1] = x.get(NLEN-1) & BMASK /* top word normalized */
@@ -58,7 +58,7 @@ func NewDBIGscopy(x *BIG) *DBIG {
 /* normalise this */
 func (r *DBIG) norm() {
 	carry := Chunk(0)
-	for i := 0; i < DNLEN-1; i++ {
+	for i := int(0); i < DNLEN-1; i++ {
 		d := r.w[i] + carry
 		r.w[i] = d & BMASK
 		carry = d >> BASEBITS
@@ -84,7 +84,7 @@ func (r *DBIG) split(n uint) *BIG {
 func (r *DBIG) cmove(g *DBIG, d int) {
 	var b = Chunk(-d)
 
-	for i := 0; i < DNLEN; i++ {
+	for i := int(0); i < DNLEN; i++ {
 		r.w[i] ^= (r.w[i] ^ g.w[i]) & b
 	}
 }
@@ -106,14 +106,14 @@ func dcomp(a *DBIG, b *DBIG) int {
 
 /* Copy from another DBIG */
 func (r *DBIG) copy(x *DBIG) {
-	for i := 0; i < DNLEN; i++ {
+	for i := int(0); i < DNLEN; i++ {
 		r.w[i] = x.w[i]
 	}
 }
 
 /* Copy from another BIG to upper half */
 func (r *DBIG) ucopy(x *BIG) {
-	for i := 0; i < NLEN; i++ {
+	for i := int(0); i < NLEN; i++ {
 		r.w[i] = 0
 	}
 	for i := NLEN; i < DNLEN; i++ {
@@ -122,21 +122,21 @@ func (r *DBIG) ucopy(x *BIG) {
 }
 
 func (r *DBIG) add(x *DBIG) {
-	for i := 0; i < DNLEN; i++ {
+	for i := int(0); i < DNLEN; i++ {
 		r.w[i] = r.w[i] + x.w[i]
 	}
 }
 
 /* this-=x */
 func (r *DBIG) sub(x *DBIG) {
-	for i := 0; i < DNLEN; i++ {
+	for i := int(0); i < DNLEN; i++ {
 		r.w[i] = r.w[i] - x.w[i]
 	}
 }
 
 /* this-=x */
 func (r *DBIG) rsub(x *DBIG) {
-	for i := 0; i < DNLEN; i++ {
+	for i := int(0); i < DNLEN; i++ {
 		r.w[i] = x.w[i] - r.w[i]
 	}
 }
@@ -151,7 +151,7 @@ func (r *DBIG) shl(k uint) {
 		r.w[i] = ((r.w[i-m] << n) & BMASK) | (r.w[i-m-1] >> (BASEBITS - n))
 	}
 	r.w[m] = (r.w[0] << n) & BMASK
-	for i := 0; i < m; i++ {
+	for i := int(0); i < m; i++ {
 		r.w[i] = 0
 	}
 }
@@ -160,7 +160,7 @@ func (r *DBIG) shl(k uint) {
 func (r *DBIG) shr(k uint) {
 	n := (k % BASEBITS)
 	m := int(k / BASEBITS)
-	for i := 0; i < DNLEN-m-1; i++ {
+	for i := int(0); i < DNLEN-m-1; i++ {
 		r.w[i] = (r.w[m+i] >> n) | ((r.w[m+i+1] << (BASEBITS - n)) & BMASK)
 	}
 	r.w[DNLEN-m-1] = r.w[DNLEN-1] >> n

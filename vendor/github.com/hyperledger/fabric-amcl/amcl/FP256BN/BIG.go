@@ -38,6 +38,7 @@ import "github.com/hyperledger/fabric-amcl/amcl"
 
 //const BIGBITS int = int(MODBYTES * 8)
 
+
 type BIG struct {
 	w [NLEN]Chunk
 }
@@ -55,10 +56,10 @@ type DBIG struct {
 func mul(a *BIG, b *BIG) *DBIG {
 	c := NewDBIG()
 	carry := Chunk(0)
-
-	for i := 0; i < NLEN; i++ {
+	var i,j int64
+	for i = 0; i < NLEN; i++ {
 		carry = 0
-		for j := 0; j < NLEN; j++ {
+		for j = 0; j < NLEN; j++ {
 			carry, c.w[i+j] = muladd(a.w[i], b.w[j], carry, c.w[i+j])
 		}
 		c.w[NLEN+i] = carry
@@ -71,16 +72,16 @@ func mul(a *BIG, b *BIG) *DBIG {
 func sqr(a *BIG) *DBIG {
 	c := NewDBIG()
 	carry := Chunk(0)
-
-	for i := 0; i < NLEN; i++ {
+	var i,j int64
+	for i = 0; i < NLEN; i++ {
 		carry = 0
-		for j := i + 1; j < NLEN; j++ {
+		for j = i + 1; j < NLEN; j++ {
 			carry, c.w[i+j] = muladd(2*a.w[i], a.w[j], carry, c.w[i+j])
 		}
 		c.w[NLEN+i] = carry
 	}
 
-	for i := 0; i < NLEN; i++ {
+	for i = 0; i < NLEN; i++ {
 		top, bot := muladd(a.w[i], a.w[i], 0, c.w[2*i])
 		c.w[2*i] = bot
 		c.w[2*i+1] += top
@@ -92,7 +93,8 @@ func sqr(a *BIG) *DBIG {
 func monty(md *BIG, mc Chunk, d *DBIG) *BIG {
 	carry := Chunk(0)
 	m := Chunk(0)
-	for i := 0; i < NLEN; i++ {
+	var i,j int64
+	for i = 0; i < NLEN; i++ {
 		if mc == -1 {
 			m = (-d.w[i]) & BMASK
 		} else {
@@ -104,14 +106,14 @@ func monty(md *BIG, mc Chunk, d *DBIG) *BIG {
 		}
 
 		carry = 0
-		for j := 0; j < NLEN; j++ {
+		for j = 0; j < NLEN; j++ {
 			carry, d.w[i+j] = muladd(m, md.w[j], carry, d.w[i+j])
 		}
 		d.w[NLEN+i] += carry
 	}
 
 	b := NewBIG()
-	for i := 0; i < NLEN; i++ {
+	for i = 0; i < NLEN; i++ {
 		b.w[i] = d.w[NLEN+i]
 	}
 	b.norm()
@@ -156,7 +158,8 @@ func (r *BIG) xortop(x Chunk) {
 /* normalise BIG - force all digits < 2^BASEBITS */
 func (r *BIG) norm() Chunk {
 	carry := Chunk(0)
-	for i := 0; i < NLEN-1; i++ {
+	var i int64
+	for i = 0; i < NLEN-1; i++ {
 		d := r.w[i] + carry
 		r.w[i] = d & BMASK
 		carry = d >> BASEBITS
@@ -167,8 +170,9 @@ func (r *BIG) norm() Chunk {
 
 /* Shift right by less than a word */
 func (r *BIG) fshr(k uint) int {
+	var i int64
 	w := r.w[0] & ((Chunk(1) << k) - 1) /* shifted out part */
-	for i := 0; i < NLEN-1; i++ {
+	for i = 0; i < NLEN-1; i++ {
 		r.w[i] = (r.w[i] >> k) | ((r.w[i+1] << (BASEBITS - k)) & BMASK)
 	}
 	r.w[NLEN-1] = r.w[NLEN-1] >> k
@@ -177,6 +181,7 @@ func (r *BIG) fshr(k uint) int {
 
 /* Shift right by less than a word */
 func (r *BIG) fshl(k uint) int {
+	//var i int64
 	r.w[NLEN-1] = (r.w[NLEN-1] << k) | (r.w[NLEN-2] >> (BASEBITS - k))
 	for i := NLEN - 2; i > 0; i-- {
 		r.w[i] = ((r.w[i] << k) & BMASK) | (r.w[i-1] >> (BASEBITS - k))
@@ -187,7 +192,8 @@ func (r *BIG) fshl(k uint) int {
 
 func NewBIG() *BIG {
 	b := new(BIG)
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		b.w[i] = 0
 	}
 	return b
@@ -195,7 +201,8 @@ func NewBIG() *BIG {
 
 func NewBIGints(x [NLEN]Chunk) *BIG {
 	b := new(BIG)
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		b.w[i] = x[i]
 	}
 	return b
@@ -204,7 +211,8 @@ func NewBIGints(x [NLEN]Chunk) *BIG {
 func NewBIGint(x int) *BIG {
 	b := new(BIG)
 	b.w[0] = Chunk(x)
-	for i := 1; i < NLEN; i++ {
+	var i int64
+	for i = 1; i < NLEN; i++ {
 		b.w[i] = 0
 	}
 	return b
@@ -212,7 +220,8 @@ func NewBIGint(x int) *BIG {
 
 func NewBIGcopy(x *BIG) *BIG {
 	b := new(BIG)
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		b.w[i] = x.w[i]
 	}
 	return b
@@ -220,7 +229,8 @@ func NewBIGcopy(x *BIG) *BIG {
 
 func NewBIGdcopy(x *DBIG) *BIG {
 	b := new(BIG)
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		b.w[i] = x.w[i]
 	}
 	return b
@@ -228,7 +238,8 @@ func NewBIGdcopy(x *DBIG) *BIG {
 
 /* test for zero */
 func (r *BIG) iszilch() bool {
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		if r.w[i] != 0 {
 			return false
 		}
@@ -238,14 +249,16 @@ func (r *BIG) iszilch() bool {
 
 /* set to zero */
 func (r *BIG) zero() {
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		r.w[i] = 0
 	}
 }
 
 /* Test for equal to one */
 func (r *BIG) isunity() bool {
-	for i := 1; i < NLEN; i++ {
+	var i int64
+	for i = 1; i < NLEN; i++ {
 		if r.w[i] != 0 {
 			return false
 		}
@@ -259,21 +272,24 @@ func (r *BIG) isunity() bool {
 /* set to one */
 func (r *BIG) one() {
 	r.w[0] = 1
-	for i := 1; i < NLEN; i++ {
+	var i int64
+	for i = 1; i < NLEN; i++ {
 		r.w[i] = 0
 	}
 }
 
 /* Copy from another BIG */
 func (r *BIG) copy(x *BIG) {
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		r.w[i] = x.w[i]
 	}
 }
 
 /* Copy from another DBIG */
 func (r *BIG) dcopy(x *DBIG) {
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		r.w[i] = x.w[i]
 	}
 }
@@ -282,8 +298,8 @@ func (r *BIG) dcopy(x *DBIG) {
 func (r *BIG) cswap(b *BIG, d int) {
 	c := Chunk(d)
 	c = ^(c - 1)
-
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		t := c & (r.w[i] ^ b.w[i])
 		r.w[i] ^= t
 		b.w[i] ^= t
@@ -292,8 +308,8 @@ func (r *BIG) cswap(b *BIG, d int) {
 
 func (r *BIG) cmove(g *BIG, d int) {
 	b := Chunk(-d)
-
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		r.w[i] ^= (r.w[i] ^ g.w[i]) & b
 	}
 }
@@ -302,11 +318,12 @@ func (r *BIG) cmove(g *BIG, d int) {
 func (r *BIG) shr(k uint) {
 	n := (k % BASEBITS)
 	m := int(k / BASEBITS)
-	for i := 0; i < NLEN-m-1; i++ {
+	var i int64
+	for i = 0; i < NLEN-m-1; i++ {
 		r.w[i] = (r.w[m+i] >> n) | ((r.w[m+i+1] << (BASEBITS - n)) & BMASK)
 	}
 	r.w[NLEN-m-1] = r.w[NLEN-1] >> n
-	for i := NLEN - m; i < NLEN; i++ {
+	for i = NLEN - m; i < NLEN; i++ {
 		r.w[i] = 0
 	}
 }
@@ -315,16 +332,16 @@ func (r *BIG) shr(k uint) {
 func (r *BIG) shl(k uint) {
 	n := k % BASEBITS
 	m := int(k / BASEBITS)
-
+	var i int64
 	r.w[NLEN-1] = (r.w[NLEN-1-m] << n)
 	if NLEN >= m+2 {
 		r.w[NLEN-1] |= (r.w[NLEN-m-2] >> (BASEBITS - n))
 	}
-	for i := NLEN - 2; i > m; i-- {
+	for i = NLEN - 2; i > m; i-- {
 		r.w[i] = ((r.w[i-m] << n) & BMASK) | (r.w[i-m-1] >> (BASEBITS - n))
 	}
 	r.w[m] = (r.w[0] << n) & BMASK
-	for i := 0; i < m; i++ {
+	for i = 0; i < m; i++ {
 		r.w[i] = 0
 	}
 }
@@ -376,13 +393,15 @@ func (r *BIG) ToString() string {
 }
 
 func (r *BIG) add(x *BIG) {
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		r.w[i] = r.w[i] + x.w[i]
 	}
 }
 
 func (r *BIG) or(x *BIG) {
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		r.w[i] = r.w[i] | x.w[i]
 	}
 }
@@ -390,7 +409,8 @@ func (r *BIG) or(x *BIG) {
 /* return this+x */
 func (r *BIG) Plus(x *BIG) *BIG {
 	s := new(BIG)
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		s.w[i] = r.w[i] + x.w[i]
 	}
 	return s
@@ -406,7 +426,8 @@ func (r *BIG) inc(x int) {
 func (r *BIG) pxmul(c int) *DBIG {
 	m := NewDBIG()
 	carry := Chunk(0)
-	for j := 0; j < NLEN; j++ {
+	var j int64
+	for j = 0; j < NLEN; j++ {
 		carry, m.w[j] = muladd(r.w[j], Chunk(c), carry, m.w[j])
 	}
 	m.w[NLEN] = carry
@@ -416,7 +437,8 @@ func (r *BIG) pxmul(c int) *DBIG {
 /* return this-x */
 func (r *BIG) Minus(x *BIG) *BIG {
 	d := new(BIG)
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		d.w[i] = r.w[i] - x.w[i]
 	}
 	return d
@@ -424,14 +446,16 @@ func (r *BIG) Minus(x *BIG) *BIG {
 
 /* this-=x */
 func (r *BIG) sub(x *BIG) {
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		r.w[i] = r.w[i] - x.w[i]
 	}
 }
 
 /* reverse subtract this=x-this */
 func (r *BIG) rsub(x *BIG) {
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		r.w[i] = x.w[i] - r.w[i]
 	}
 }
@@ -444,7 +468,8 @@ func (r *BIG) dec(x int) {
 
 /* this*=x, where x is small int<NEXCESS */
 func (r *BIG) imul(c int) {
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		r.w[i] *= Chunk(c)
 	}
 }
@@ -453,7 +478,8 @@ func (r *BIG) imul(c int) {
 func (r *BIG) pmul(c int) Chunk {
 	carry := Chunk(0)
 	//	r.norm();
-	for i := 0; i < NLEN; i++ {
+	var i int64
+	for i = 0; i < NLEN; i++ {
 		ak := r.w[i]
 		r.w[i] = 0
 		carry, r.w[i] = muladd(ak, Chunk(c), carry, r.w[i])
@@ -476,7 +502,8 @@ func (r *BIG) tobytearray(b []byte, n int) {
 /* convert from byte array to BIG */
 func frombytearray(b []byte, n int) *BIG {
 	m := NewBIG()
-	for i := 0; i < int(MODBYTES); i++ {
+	var i int64
+	for i = 0; i < int(MODBYTES); i++ {
 		m.fshl(8)
 		m.w[0] += Chunk(int(b[i+n] & 0xff))
 	}
@@ -508,9 +535,10 @@ func (r *BIG) div3() int {
 func smul(a *BIG, b *BIG) *BIG {
 	carry := Chunk(0)
 	c := NewBIG()
-	for i := 0; i < NLEN; i++ {
+	var i,j int64
+	for i = 0; i < NLEN; i++ {
 		carry = 0
-		for j := 0; j < NLEN; j++ {
+		for j = 0; j < NLEN; j++ {
 			if i+j < NLEN {
 				carry, c.w[i+j] = muladd(a.w[i], b.w[j], carry, c.w[i+j])
 			}
@@ -551,7 +579,7 @@ func (r *BIG) bit(n int) int {
 func (r *BIG) lastbits(n int) int {
 	msk := (1 << uint(n)) - 1
 	r.norm()
-	return (int(r.w[0])) & msk
+	return (int(r.w[0])) & int(msk)
 }
 
 /* set x = x mod 2^m */
@@ -572,8 +600,8 @@ func (r *BIG) invmod2m() {
 	c := NewBIG()
 
 	U.inc(invmod256(r.lastbits(8)))
-
-	for i := 8; i < BIGBITS; i <<= 1 {
+	var i int64
+	for i = 8; i < BIGBITS; i <<= 1 {
 		U.norm()
 		ui := uint(i)
 		b.copy(r)
@@ -673,7 +701,8 @@ func random(rng *amcl.RAND) *BIG {
 	var j int = 0
 	var r byte = 0
 	/* generate random BIG */
-	for i := 0; i < 8*int(MODBYTES); i++ {
+	var i int64
+	for i = 0; i < 8*int(MODBYTES); i++ {
 		if j == 0 {
 			r = rng.GetByte()
 		} else {
@@ -694,7 +723,8 @@ func Randomnum(q *BIG, rng *amcl.RAND) *BIG {
 	d := NewDBIG()
 	var j int = 0
 	var r byte = 0
-	for i := 0; i < 2*q.nbits(); i++ {
+	var i int64
+	for i = 0; i < 2*q.nbits(); i++ {
 		if j == 0 {
 			r = rng.GetByte()
 		} else {
@@ -738,7 +768,7 @@ func Modneg(a1, m *BIG) *BIG {
 
 /* Jacobi Symbol (this/p). Returns 0, 1 or -1 */
 func (r *BIG) Jacobi(p *BIG) int {
-	m := 0
+	m := int64(0)
 	t := NewBIGint(0)
 	x := NewBIGint(0)
 	n := NewBIGint(0)
@@ -763,7 +793,7 @@ func (r *BIG) Jacobi(p *BIG) int {
 			x.shr(1)
 		}
 		if k%2 == 1 {
-			m += (n8*n8 - 1) / 8
+			m += (n8*n8 - 1) / int(8)
 		}
 		m += (n8 - 1) * (x.lastbits(2) - 1) / 4
 		t.copy(n)
@@ -920,7 +950,8 @@ func ssn(r *BIG, a *BIG, m *BIG) int {
 	r.w[0] = a.w[0] - m.w[0]
 	carry := r.w[0] >> BASEBITS
 	r.w[0] &= BMASK
-	for i := 1; i < n; i++ {
+	var i int64
+	for i = 1; i < n; i++ {
 		m.w[i] = (m.w[i] >> 1) | ((m.w[i+1] << (BASEBITS - 1)) & BMASK)
 		r.w[i] = a.w[i] - m.w[i] + carry
 		carry = r.w[i] >> BASEBITS

@@ -1,5 +1,7 @@
 package FP256BN
 
+type int=int64
+
 // BIG length in bytes and number base
 const MODBYTES uint = 32
 const BASEBITS uint = 56

@@ -42,7 +42,6 @@ type FP struct {
 	x   *BIG
 	XES int32
 }
-
 /* Constructors */
 func NewFP() *FP {
 	F := new(FP)
@@ -120,14 +119,14 @@ func mod(d *DBIG) *BIG {
 		return t
 	}
 	if MODTYPE == MONTGOMERY_FRIENDLY {
-		for i := 0; i < NLEN; i++ {
-			top, bot := muladd(d.w[i], MConst-1, d.w[i], d.w[NLEN+i-1])
+		for i := int(0); i < NLEN; i++ {
+			top, bot := muladd(d.w[i], MConst-1, d.w[i], d.w[NLEN+int(i)-1])
 			d.w[NLEN+i-1] = bot
 			d.w[NLEN+i] += top
 		}
 		b := NewBIG()
 
-		for i := 0; i < NLEN; i++ {
+		for i := int(0); i < NLEN; i++ {
 			b.w[i] = d.w[NLEN+i]
 		}
 		b.norm()
@@ -383,7 +382,7 @@ func (F *FP) fpow() *FP {
 	xp[9].sqr()
 	xp = append(xp, NewFPcopy(xp[9]))
 	xp[10].mul(xp[5])
-	var n, c int
+	var n, c int64
 
 	n = int(MODBITS)
 	if MODTYPE == GENERALISED_MERSENNE { // Goldilocks ONLY
@@ -391,22 +390,22 @@ func (F *FP) fpow() *FP {
 	}
 	if MOD8 == 5 {
 		n -= 3
-		c = (int(MConst) + 5) / 8
+		c = (int64(MConst) + 5) / int64(8)
 	} else {
 		n -= 2
-		c = (int(MConst) + 3) / 4
+		c = (int64(MConst) + 3) / int64(4)
 
 	}
 
-	bw := 0
-	w := 1
+	bw := int(0)
+	w := int(1)
 	for w < c {
 		w *= 2
 		bw += 1
 	}
 	k := w - c
 
-	i := 10
+	i := int(10)
 	key := NewFP()
 
 	if k != 0 {
@@ -430,14 +429,14 @@ func (F *FP) fpow() *FP {
 	xp[2].copy(xp[5])
 	xp[3].copy(xp[10])
 
-	j := 3
-	m := 8
-	nw := n - bw
+	j := int(3)
+	m := int(8)
+	nw := int(n - bw)
 	t := NewFP()
 	for 2*m < nw {
 		t.copy(xp[j])
 		j++
-		for i = 0; i < m; i++ {
+		for i = int(0); i < m; i++ {
 			t.sqr()
 		}
 		xp[j].copy(xp[j-1])
@@ -455,7 +454,7 @@ func (F *FP) fpow() *FP {
 		}
 		lo -= m
 		t.copy(r)
-		for i = 0; i < m; i++ {
+		for i = int(0); i < m; i++ {
 			t.sqr()
 		}
 		r.copy(t)
@@ -526,7 +525,7 @@ func (F *FP) pow(e *BIG) *FP {
 	t.norm()
 	nb := 1 + (t.nbits()+3)/4
 
-	for i := 0; i < nb; i++ {
+	for i := int(0); i < nb; i++ {
 		lsbs := t.lastbits(4)
 		t.dec(lsbs)
 		t.norm()

@@ -80,19 +80,19 @@ func ntt(x []int32) {
 	q := NHS_PRIME
 
 	/* Convert to Montgomery form */
-	for j := 0; j < NHS_DEGREE; j++ {
+	for j := int(0); j < NHS_DEGREE; j++ {
 		x[j] = nres(x[j])
 	}
-	m := 1
+	m := int(1)
 	for m < NHS_DEGREE {
-		k := 0
-		for i := 0; i < m; i++ {
+		k := int(0)
+		for i := int(0); i < m; i++ {
 			S := NHS_roots[m+i]
-			for j := k; j < k+t; j++ {
-				U := x[j]
-				V := modmul(x[j+t], S)
-				x[j] = U + V
-				x[j+t] = U + 2*q - V
+			for j := int(k); j < k+t; j++ {
+				U := int(x[j])
+				V := int(modmul(x[j+t], S))
+				x[j] = int32(U + V)
+				x[j+t] = int32(U + int(2*q) - V)
 			}
 			k += 2 * t
 		}
@@ -104,15 +104,15 @@ func ntt(x []int32) {
 /* Gentleman-Sande INTT */
 
 func intt(x []int32) {
-	t := 1
+	t := int(1)
 	q := NHS_PRIME
 
 	m := NHS_DEGREE / 2
 	for m > 1 {
-		k := 0
-		for i := 0; i < m; i++ {
+		k := int(0)
+		for i := int(0); i < m; i++ {
 			S := NHS_iroots[m+i]
-			for j := k; j < k+t; j++ {
+			for j := int(k); j < k+t; j++ {
 				U := x[j]
 				V := x[j+t]
 				x[j] = U + V
@@ -128,7 +128,7 @@ func intt(x []int32) {
 	/* Last iteration merged with n^-1 */
 
 	t = NHS_DEGREE / 2
-	for j := 0; j < t; j++ {
+	for j := int(0); j < t; j++ {
 		U := x[j]
 		V := x[j+t]
 		W := U + int32(NHS_DEGREE)*q - V
@@ -136,7 +136,7 @@ func intt(x []int32) {
 		x[j] = modmul(U+V, NHS_inv)
 	}
 	/* convert back from Montgomery to "normal" form */
-	for j := 0; j < NHS_DEGREE; j++ {
+	for j := int(0); j < NHS_DEGREE; j++ {
 		x[j] = redc(uint64(x[j]))
 		x[j] -= q
 		x[j] += (x[j] >> (NHS_WL - 1)) & q
@@ -192,10 +192,10 @@ func parse(seed []byte, poly []int32) {
 	for i := 0; i < 32; i++ {
 		sh.Process(seed[i])
 	}
-	sh.Shake(hash[:], 4*NHS_DEGREE)
+	sh.Shake(hash[:], int64(4*NHS_DEGREE))
 
-	j := 0
-	for i := 0; i < NHS_DEGREE; i++ {
+	j := int(0)
+	for i := int(0); i < NHS_DEGREE; i++ {
 		n := int32(hash[j] & 0x7f)
 		n <<= 8
 		n += int32(hash[j+1])
@@ -213,8 +213,8 @@ func parse(seed []byte, poly []int32) {
 /* 7 bytes is 3x14 */
 
 func nhs_pack(poly []int32, array []byte) {
-	j := 0
-	for i := 0; i < NHS_DEGREE; {
+	j := int(0)
+	for i := int(0); i < NHS_DEGREE; {
 		a := poly[i]
 		b := poly[i+1]
 		c := poly[i+2]
@@ -232,8 +232,8 @@ func nhs_pack(poly []int32, array []byte) {
 }
 
 func nhs_unpack(array []byte, poly []int32) {
-	j := 0
-	for i := 0; i < NHS_DEGREE; {
+	j := int(0)
+	for i := int(0); i < NHS_DEGREE; {
 		a := int32((array[j]) & 0xff)
 		b := int32((array[j+1]) & 0xff)
 		c := int32((array[j+2]) & 0xff)
@@ -255,8 +255,8 @@ func nhs_unpack(array []byte, poly []int32) {
 func compress(poly []int32, array []byte) {
 
 	var col int32 = 0
-	j := 0
-	for i := 0; i < NHS_DEGREE; {
+	j := int(0)
+	for i := int(0); i < NHS_DEGREE; {
 		for k := 0; k < 8; k++ {
 			b := round((poly[i]*8), NHS_PRIME) & 7
 			col = (col << 3) + b
@@ -272,8 +272,8 @@ func compress(poly []int32, array []byte) {
 
 func decompress(array []byte, poly []int32) {
 	var col int32 = 0
-	j := 0
-	for i := 0; i < NHS_DEGREE; {
+	j := int(0)
+	for i := int(0); i < NHS_DEGREE; {
 		col = int32(array[j+2]) & 0xff
 		col = (col << 8) + (int32(array[j+1]) & 0xff)
 		col = (col << 8) + (int32(array[j]) & 0xff)
@@ -291,7 +291,7 @@ func decompress(array []byte, poly []int32) {
 
 func error(rng *RAND, poly []int32) {
 	var r int32
-	for i := 0; i < NHS_DEGREE; i++ {
+	for i := int(0); i < NHS_DEGREE; i++ {
 		n1 := (int32(rng.GetByte()) & 0xff) + ((int32(rng.GetByte()) & 0xff) << 8)
 		n2 := (int32(rng.GetByte()) & 0xff) + ((int32(rng.GetByte()) & 0xff) << 8)
 		r = 0
@@ -305,38 +305,38 @@ func error(rng *RAND, poly []int32) {
 }
 
 func redc_it(p []int32) {
-	for i := 0; i < NHS_DEGREE; i++ {
+	for i := int(0); i < NHS_DEGREE; i++ {
 		p[i] = redc(uint64(p[i]))
 	}
 }
 
 func nres_it(p []int32) {
-	for i := 0; i < NHS_DEGREE; i++ {
+	for i := int(0); i < NHS_DEGREE; i++ {
 		p[i] = nres(p[i])
 	}
 }
 
 func poly_mul(p1 []int32, p2 []int32, p3 []int32) {
-	for i := 0; i < NHS_DEGREE; i++ {
+	for i := int(0); i < NHS_DEGREE; i++ {
 		p1[i] = modmul(p2[i], p3[i])
 	}
 }
 
 func poly_add(p1 []int32, p2 []int32, p3 []int32) {
-	for i := 0; i < NHS_DEGREE; i++ {
+	for i := int(0); i < NHS_DEGREE; i++ {
 		p1[i] = (p2[i] + p3[i])
 	}
 }
 
 func poly_sub(p1 []int32, p2 []int32, p3 []int32) {
-	for i := 0; i < NHS_DEGREE; i++ {
+	for i := int(0); i < NHS_DEGREE; i++ {
 		p1[i] = (p2[i] + NHS_PRIME - p3[i])
 	}
 }
 
 /* reduces inputs < 2q */
 func poly_soft_reduce(poly []int32) {
-	for i := 0; i < NHS_DEGREE; i++ {
+	for i := int(0); i < NHS_DEGREE; i++ {
 		e := poly[i] - NHS_PRIME
 		poly[i] = e + ((e >> (NHS_WL - 1)) & NHS_PRIME)
 	}
@@ -344,7 +344,7 @@ func poly_soft_reduce(poly []int32) {
 
 /* fully reduces modulo q */
 func poly_hard_reduce(poly []int32) {
-	for i := 0; i < NHS_DEGREE; i++ {
+	for i := int(0); i < NHS_DEGREE; i++ {
 		e := modmul(poly[i], NHS_ONE)
 		e = e - NHS_PRIME
 		poly[i] = e + ((e >> (NHS_WL - 1)) & NHS_PRIME)

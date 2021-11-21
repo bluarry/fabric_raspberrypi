@@ -720,21 +720,21 @@ func FP12_fromBytes(w []byte) *FP12 {
 	var t [int(MODBYTES)]byte
 	MB := int(MODBYTES)
 
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = w[i]
 	}
 	a := FromBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = w[i+MB]
 	}
 	b := FromBytes(t[:])
 	c := NewFP2bigs(a, b)
 
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = w[i+2*MB]
 	}
 	a = FromBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = w[i+3*MB]
 	}
 	b = FromBytes(t[:])
@@ -742,21 +742,21 @@ func FP12_fromBytes(w []byte) *FP12 {
 
 	e := NewFP4fp2s(c, d)
 
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = w[i+4*MB]
 	}
 	a = FromBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = w[i+5*MB]
 	}
 	b = FromBytes(t[:])
 	c = NewFP2bigs(a, b)
 
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = w[i+6*MB]
 	}
 	a = FromBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = w[i+7*MB]
 	}
 	b = FromBytes(t[:])
@@ -764,22 +764,22 @@ func FP12_fromBytes(w []byte) *FP12 {
 
 	f := NewFP4fp2s(c, d)
 
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = w[i+8*MB]
 	}
 	a = FromBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = w[i+9*MB]
 	}
 	b = FromBytes(t[:])
 
 	c = NewFP2bigs(a, b)
 
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = w[i+10*MB]
 	}
 	a = FromBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		t[i] = w[i+11*MB]
 	}
 	b = FromBytes(t[:])
@@ -795,53 +795,53 @@ func (F *FP12) ToBytes(w []byte) {
 	var t [int(MODBYTES)]byte
 	MB := int(MODBYTES)
 	F.a.geta().GetA().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		w[i] = t[i]
 	}
 	F.a.geta().GetB().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		w[i+MB] = t[i]
 	}
 	F.a.getb().GetA().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		w[i+2*MB] = t[i]
 	}
 	F.a.getb().GetB().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		w[i+3*MB] = t[i]
 	}
 
 	F.b.geta().GetA().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		w[i+4*MB] = t[i]
 	}
 	F.b.geta().GetB().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		w[i+5*MB] = t[i]
 	}
 	F.b.getb().GetA().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		w[i+6*MB] = t[i]
 	}
 	F.b.getb().GetB().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		w[i+7*MB] = t[i]
 	}
 
 	F.c.geta().GetA().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		w[i+8*MB] = t[i]
 	}
 	F.c.geta().GetB().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		w[i+9*MB] = t[i]
 	}
 	F.c.getb().GetA().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		w[i+10*MB] = t[i]
 	}
 	F.c.getb().GetB().ToBytes(t[:])
-	for i := 0; i < MB; i++ {
+	for i := int(0); i < MB; i++ {
 		w[i+11*MB] = t[i]
 	}
 }
@@ -980,13 +980,13 @@ func pow4(q []*FP12, u []*BIG) *FP12 {
 
 	// Sign pivot
 	s[nb-1] = 1
-	for i := 0; i < nb-1; i++ {
+	for i := int(0); i < nb-1; i++ {
 		t[0].fshr(1)
 		s[i] = 2*int8(t[0].parity()) - 1
 	}
 
 	// Recoded exponent
-	for i := 0; i < nb; i++ {
+	for i := int(0); i < nb; i++ {
 		w[i] = 0
 		k := 1
 		for j := 1; j < 4; j++ {

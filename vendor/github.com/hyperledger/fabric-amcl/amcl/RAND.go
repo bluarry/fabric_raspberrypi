@@ -51,7 +51,7 @@ func (R *RAND) Clean() { /* kill internal state */
 	for i := 0; i < 32; i++ {
 		R.pool[i] = 0
 	}
-	for i := 0; i < rand_NK; i++ {
+	for i := int(0); i < rand_NK; i++ {
 		R.ira[i] = 0
 	}
 	R.borrow = 0
@@ -70,7 +70,7 @@ func (R *RAND) sbrand() uint32 { /* Marsaglia & Zaman random number generator */
 	}
 	R.rndptr = 0
 	k := rand_NK - rand_NJ
-	for i := 0; i < rand_NK; i++ { /* calculate next NK values */
+	for i := int(0); i < rand_NK; i++ { /* calculate next NK values */
 		if k == rand_NK {
 			k = 0
 		}
@@ -94,7 +94,7 @@ func (R *RAND) sirand(seed uint32) {
 	R.borrow = 0
 	R.rndptr = 0
 	R.ira[0] ^= seed
-	for i := 1; i < rand_NK; i++ { /* fill initialisation vector */
+	for i := int(1); i < rand_NK; i++ { /* fill initialisation vector */
 		in := (rand_NV * i) % rand_NK
 		R.ira[in] ^= m /* note XOR */
 		t := m
@@ -123,16 +123,16 @@ func pack(b [4]byte) uint32 { /* pack 4 bytes into a 32-bit Word */
 }
 
 /* Initialize RNG with some real entropy from some external source */
-func (R *RAND) Seed(rawlen int, raw []byte) { /* initialise from at least 128 byte string of raw random entropy */
+func (R *RAND) Seed(rawlen int64, raw []byte) { /* initialise from at least 128 byte string of raw random entropy */
 	var b [4]byte
 	sh := NewHASH256()
 	R.pool_ptr = 0
 
-	for i := 0; i < rand_NK; i++ {
+	for i := int(0); i < rand_NK; i++ {
 		R.ira[i] = 0
 	}
 	if rawlen > 0 {
-		for i := 0; i < rawlen; i++ {
+		for i := int(0); i < int(rawlen); i++ {
 			sh.Process(raw[i])
 		}
 		digest := sh.Hash()

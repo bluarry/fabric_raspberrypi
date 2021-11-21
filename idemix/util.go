@@ -136,7 +136,7 @@ func GetRand() (*amcl.RAND, error) {
 	}
 	rng := amcl.NewRAND()
 	rng.Clean()
-	rng.Seed(seedLength, b)
+	rng.Seed(int64(seedLength), b)
 	return rng, nil
 }
 

@@ -48,7 +48,7 @@ func inttoBytes(n int, len int) []byte {
 
 func ehashit(sha int, A []byte, n int, B []byte, pad int) []byte {
 	var R []byte
-	if sha == amcl.SHA256 {
+	if sha == int(amcl.SHA256) {
 		H := amcl.NewHASH256()
 		H.Process_array(A)
 		if n > 0 {
@@ -59,7 +59,7 @@ func ehashit(sha int, A []byte, n int, B []byte, pad int) []byte {
 		}
 		R = H.Hash()
 	}
-	if sha == amcl.SHA384 {
+	if sha == int(amcl.SHA384) {
 		H := amcl.NewHASH384()
 		H.Process_array(A)
 		if n > 0 {
@@ -70,7 +70,7 @@ func ehashit(sha int, A []byte, n int, B []byte, pad int) []byte {
 		}
 		R = H.Hash()
 	}
-	if sha == amcl.SHA512 {
+	if sha == int(amcl.SHA512) {
 		H := amcl.NewHASH512()
 		H.Process_array(A)
 		if n > 0 {
@@ -89,18 +89,18 @@ func ehashit(sha int, A []byte, n int, B []byte, pad int) []byte {
 		return R
 	}
 	var W []byte
-	for i := 0; i < pad; i++ {
+	for i := int(0); i < pad; i++ {
 		W = append(W, 0)
 	}
 	if pad <= sha {
-		for i := 0; i < pad; i++ {
+		for i := int(0); i < pad; i++ {
 			W[i] = R[i]
 		}
 	} else {
-		for i := 0; i < sha; i++ {
+		for i := int(0); i < sha; i++ {
 			W[i+pad-sha] = R[i]
 		}
-		for i := 0; i < pad-sha; i++ {
+		for i := int(0); i < pad-sha; i++ {
 			W[i] = 0
 		}
 	}
@@ -116,7 +116,7 @@ func ECDH_KDF1(sha int, Z []byte, olen int) []byte {
 	var K []byte
 	k := 0
 
-	for i := 0; i < olen; i++ {
+	for i := int(0); i < olen; i++ {
 		K = append(K, 0)
 	}
 
@@ -125,15 +125,15 @@ func ECDH_KDF1(sha int, Z []byte, olen int) []byte {
 		cthreshold++
 	}
 
-	for counter := 0; counter < cthreshold; counter++ {
+	for counter := int(0); counter < cthreshold; counter++ {
 		B := ehashit(sha, Z, counter, nil, 0)
-		if k+hlen > olen {
-			for i := 0; i < olen%hlen; i++ {
+		if int(k)+hlen> int(olen) {
+			for i := int(0); i < olen%hlen; i++ {
 				K[k] = B[i]
 				k++
 			}
 		} else {
-			for i := 0; i < hlen; i++ {
+			for i := int(0); i < hlen; i++ {
 				K[k] = B[i]
 				k++
 			}
@@ -148,7 +148,7 @@ func ECDH_KDF2(sha int, Z []byte, P []byte, olen int) []byte {
 	var K []byte
 	k := 0
 
-	for i := 0; i < olen; i++ {
+	for i := int(0); i < olen; i++ {
 		K = append(K, 0)
 	}
 
@@ -157,15 +157,15 @@ func ECDH_KDF2(sha int, Z []byte, P []byte, olen int) []byte {
 		cthreshold++
 	}
 
-	for counter := 1; counter <= cthreshold; counter++ {
+	for counter := int(1); counter <= cthreshold; counter++ {
 		B := ehashit(sha, Z, counter, P, 0)
-		if k+hlen > olen {
-			for i := 0; i < olen%hlen; i++ {
+		if int(k)+hlen > olen {
+			for i := int(0); i < olen%hlen; i++ {
 				K[k] = B[i]
 				k++
 			}
 		} else {
-			for i := 0; i < hlen; i++ {
+			for i := int(0); i < hlen; i++ {
 				K[k] = B[i]
 				k++
 			}
@@ -188,12 +188,12 @@ func ECDH_PBKDF2(sha int, Pass []byte, Salt []byte, rep int, olen int) []byte {
 	var S []byte
 	var K []byte
 
-	for i := 0; i < sha; i++ {
+	for i := int(0); i < sha; i++ {
 		F = append(F, 0)
 		U = append(U, 0)
 	}
 
-	for i := 1; i <= d; i++ {
+	for i := int(1); i <= d; i++ {
 		for j := 0; j < len(Salt); j++ {
 			S = append(S, Salt[j])
 		}
@@ -204,21 +204,21 @@ func ECDH_PBKDF2(sha int, Pass []byte, Salt []byte, rep int, olen int) []byte {
 
 		HMAC(sha, S, Pass, F[:])
 
-		for j := 0; j < sha; j++ {
+		for j := int(0); j < sha; j++ {
 			U[j] = F[j]
 		}
-		for j := 2; j <= rep; j++ {
+		for j := int(2); j <= rep; j++ {
 			HMAC(sha, U[:], Pass, U[:])
-			for k := 0; k < sha; k++ {
+			for k := int(0); k < sha; k++ {
 				F[k] ^= U[k]
 			}
 		}
-		for j := 0; j < sha; j++ {
+		for j := int(0); j < sha; j++ {
 			K = append(K, F[j])
 		}
 	}
 	var key []byte
-	for i := 0; i < olen; i++ {
+	for i := int(0); i < olen; i++ {
 		key = append(key, K[i])
 	}
 	return key
@@ -236,7 +236,7 @@ func HMAC(sha int, M []byte, K []byte, tag []byte) int {
 	}
 
 	var K0 [128]byte
-	olen := len(tag)
+	olen := int(len(tag))
 
 	if olen < 4 {
 		return 0
@@ -248,7 +248,7 @@ func HMAC(sha int, M []byte, K []byte, tag []byte) int {
 
 	if len(K) > b {
 		B = ehashit(sha, K, 0, nil, 0)
-		for i := 0; i < sha; i++ {
+		for i := int(0); i < sha; i++ {
 			K0[i] = B[i]
 		}
 	} else {
@@ -267,7 +267,7 @@ func HMAC(sha int, M []byte, K []byte, tag []byte) int {
 	}
 	B = ehashit(sha, K0[0:b], 0, B, olen)
 
-	for i := 0; i < olen; i++ {
+	for i := int(0); i < olen; i++ {
 		tag[i] = B[i]
 	}
 
@@ -283,8 +283,8 @@ func AES_CBC_IV0_ENCRYPT(K []byte, M []byte) []byte { /* AES CBC encryption, wit
 
 	var buff [16]byte
 	var C []byte
-
-	a.Init(amcl.AES_CBC, len(K), K, nil)
+	
+	a.Init(int64(amcl.AES_CBC), int64(len(K)), K, nil)
 
 	ipt := 0 //opt:=0
 	var i int
@@ -331,10 +331,10 @@ func AES_CBC_IV0_DECRYPT(K []byte, C []byte) []byte { /* padding is removed */
 	var M []byte
 
 	var i int
-	ipt := 0
-	opt := 0
+	ipt := int(0)
+	opt := int(0)
 
-	a.Init(amcl.AES_CBC, len(K), K, nil)
+	a.Init(int64(amcl.AES_CBC), int64(len(K)), K, nil)
 
 	if len(C) == 0 {
 		return nil
@@ -347,7 +347,7 @@ func AES_CBC_IV0_DECRYPT(K []byte, C []byte) []byte { /* padding is removed */
 	for true {
 		for i = 0; i < 16; i++ {
 			buff[i] = ch
-			if ipt >= len(C) {
+			if ipt >= int64(len(C)) {
 				fin = true
 				break
 			} else {
@@ -403,7 +403,7 @@ func AES_CBC_IV0_DECRYPT(K []byte, C []byte) []byte { /* padding is removed */
  * If RNG is NULL then the private key is provided externally in S
  * otherwise it is generated randomly internally */
 func ECDH_KEY_PAIR_GENERATE(RNG *amcl.RAND, S []byte, W []byte) int {
-	res := 0
+	res := int(0)
 	var s *BIG
 	var G *ECP
 
@@ -430,7 +430,7 @@ func ECDH_KEY_PAIR_GENERATE(RNG *amcl.RAND, S []byte, W []byte) int {
 /* validate public key */
 func ECDH_PUBLIC_KEY_VALIDATE(W []byte) int {
 	WP := ECP_fromBytes(W)
-	res := 0
+	res := int(0)
 
 	r := NewBIGints(CURVE_Order)
 
@@ -464,7 +464,7 @@ func ECDH_PUBLIC_KEY_VALIDATE(W []byte) int {
 
 /* IEEE-1363 Diffie-Hellman online calculation Z=S.WD */
 func ECDH_ECPSVDP_DH(S []byte, WD []byte, Z []byte) int {
-	res := 0
+	res := int(0)
 	var T [EFS]byte
 
 	s := FromBytes(S)
@@ -482,7 +482,7 @@ func ECDH_ECPSVDP_DH(S []byte, WD []byte, Z []byte) int {
 			res = ERROR
 		} else {
 			W.GetX().ToBytes(T[:])
-			for i := 0; i < EFS; i++ {
+			for i := int(0); i < EFS; i++ {
 				Z[i] = T[i]
 			}
 		}
@@ -526,11 +526,11 @@ func ECDH_ECPSP_DSA(sha int, RNG *amcl.RAND, S []byte, F []byte, C []byte, D []b
 	}
 
 	c.ToBytes(T[:])
-	for i := 0; i < EFS; i++ {
+	for i := int(0); i < EFS; i++ {
 		C[i] = T[i]
 	}
 	d.ToBytes(T[:])
-	for i := 0; i < EFS; i++ {
+	for i := int(0); i < EFS; i++ {
 		D[i] = T[i]
 	}
 	return 0
@@ -538,7 +538,7 @@ func ECDH_ECPSP_DSA(sha int, RNG *amcl.RAND, S []byte, F []byte, C []byte, D []b
 
 /* IEEE1363 ECDSA Signature Verification. Signature C and D on F is verified using public key W */
 func ECDH_ECPVP_DSA(sha int, W []byte, F []byte, C []byte, D []byte) int {
-	res := 0
+	res := int(0)
 
 	B := ehashit(sha, F, 0, nil, int(MODBYTES))
 
@@ -598,23 +598,23 @@ func ECDH_ECIES_ENCRYPT(sha int, P1 []byte, P2 []byte, RNG *amcl.RAND, W []byte,
 		return nil
 	}
 
-	for i := 0; i < 2*EFS+1; i++ {
+	for i := int(0); i < 2*EFS+1; i++ {
 		VZ[i] = V[i]
 	}
-	for i := 0; i < EFS; i++ {
+	for i := int(0); i < EFS; i++ {
 		VZ[2*EFS+1+i] = Z[i]
 	}
 
 	K := ECDH_KDF2(sha, VZ[:], P1, 2*AESKEY)
 
-	for i := 0; i < AESKEY; i++ {
+	for i := int(0); i < AESKEY; i++ {
 		K1[i] = K[i]
 		K2[i] = K[AESKEY+i]
 	}
 
 	C := AES_CBC_IV0_ENCRYPT(K1[:], M)
 
-	L2 := inttoBytes(len(P2), 8)
+	L2 := inttoBytes(int(len(P2)), 8)
 
 	var AC []byte
 
@@ -635,8 +635,8 @@ func ECDH_ECIES_ENCRYPT(sha int, P1 []byte, P2 []byte, RNG *amcl.RAND, W []byte,
 
 /* constant time n-byte compare */
 func ncomp(T1 []byte, T2 []byte, n int) bool {
-	res := 0
-	for i := 0; i < n; i++ {
+	res := int(0)
+	for i := int(0); i < n; i++ {
 		res |= int(T1[i] ^ T2[i])
 	}
 	if res == 0 {
@@ -658,16 +658,16 @@ func ECDH_ECIES_DECRYPT(sha int, P1 []byte, P2 []byte, V []byte, C []byte, T []b
 		return nil
 	}
 
-	for i := 0; i < 2*EFS+1; i++ {
+	for i := int(0); i < 2*EFS+1; i++ {
 		VZ[i] = V[i]
 	}
-	for i := 0; i < EFS; i++ {
+	for i := int(0); i < EFS; i++ {
 		VZ[2*EFS+1+i] = Z[i]
 	}
 
 	K := ECDH_KDF2(sha, VZ[:], P1, 2*AESKEY)
 
-	for i := 0; i < AESKEY; i++ {
+	for i := int(0); i < AESKEY; i++ {
 		K1[i] = K[i]
 		K2[i] = K[AESKEY+i]
 	}
@@ -678,7 +678,7 @@ func ECDH_ECIES_DECRYPT(sha int, P1 []byte, P2 []byte, V []byte, C []byte, T []b
 		return nil
 	}
 
-	L2 := inttoBytes(len(P2), 8)
+	L2 := inttoBytes(int(len(P2)), 8)
 
 	var AC []byte
 
@@ -694,7 +694,7 @@ func ECDH_ECIES_DECRYPT(sha int, P1 []byte, P2 []byte, V []byte, C []byte, T []b
 
 	HMAC(sha, AC, K2[:], TAG)
 
-	if !ncomp(T, TAG, len(T)) {
+	if !ncomp(T, TAG, int(len(T))) {
 		return nil
 	}
 

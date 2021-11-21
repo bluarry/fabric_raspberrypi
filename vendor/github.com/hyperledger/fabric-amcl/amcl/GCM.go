@@ -73,8 +73,8 @@ func gcm_unpack(a uint32) [4]byte { /* unpack bytes from a word */
 
 func (G *GCM) precompute(H []byte) {
 	var b [4]byte
-	j := 0
-	for i := 0; i < gcm_NB; i++ {
+	j := int(0)
+	for i := int(0); i < gcm_NB; i++ {
 		b[0] = H[j]
 		b[1] = H[j+1]
 		b[2] = H[j+2]
@@ -84,7 +84,7 @@ func (G *GCM) precompute(H []byte) {
 	}
 	for i := 1; i < 128; i++ {
 		c := uint32(0)
-		for j := 0; j < gcm_NB; j++ {
+		for j := int(0); j < gcm_NB; j++ {
 			G.table[i][j] = c | (G.table[i-1][j])>>1
 			c = G.table[i-1][j] << 31
 		}
@@ -106,7 +106,7 @@ func (G *GCM) gf2mul() { /* gf2m mul - Z=H*X mod 2^128 */
 		j--
 		c := uint32((G.stateX[m] >> j) & 1)
 		c = ^c + 1
-		for k := 0; k < gcm_NB; k++ {
+		for k := int(0); k < gcm_NB; k++ {
 			P[k] ^= (G.table[i][k] & c)
 		}
 		if j == 0 {
@@ -118,7 +118,7 @@ func (G *GCM) gf2mul() { /* gf2m mul - Z=H*X mod 2^128 */
 		}
 	}
 	j = 0
-	for i := 0; i < gcm_NB; i++ {
+	for i := int(0); i < gcm_NB; i++ {
 		b := gcm_unpack(P[i])
 		G.stateX[j] = b[0]
 		G.stateX[j+1] = b[1]
@@ -138,7 +138,7 @@ func (G *GCM) wrap() { /* Finish off GHASH */
 	F[2] = (G.lenC[0] << 3) | (G.lenC[1]&0xE0000000)>>29
 	F[3] = G.lenC[1] << 3
 	j := 0
-	for i := 0; i < gcm_NB; i++ {
+	for i := int(0); i < gcm_NB; i++ {
 		b := gcm_unpack(F[i])
 		L[j] = b[0]
 		L[j+1] = b[1]
@@ -160,9 +160,9 @@ func (G *GCM) ghash(plain []byte, len int) bool {
 		return false
 	}
 
-	j := 0
+	j := int(0)
 	for j < len {
-		for i := 0; i < 16 && j < len; i++ {
+		for i := int(0); i < 16 && j < len; i++ {
 			G.stateX[i] ^= plain[j]
 			j++
 			G.lenC[1]++
@@ -189,7 +189,7 @@ func (G *GCM) Init(nk int, key []byte, niv int, iv []byte) { /* iv size niv is u
 
 	G.a = new(AES)
 
-	G.a.Init(AES_ECB, nk, key, iv)
+	G.a.Init(int64(AES_ECB), int64(nk), key, iv)
 	G.a.ecb_encrypt(H[:]) /* E(K,0) */
 	G.precompute(H[:])
 
@@ -232,9 +232,9 @@ func (G *GCM) Add_header(header []byte, len int) bool { /* Add some header. Won'
 		return false
 	}
 
-	j := 0
+	j := int(0)
 	for j < len {
-		for i := 0; i < 16 && j < len; i++ {
+		for i := int(0); i < 16 && j < len; i++ {
 			G.stateX[i] ^= header[j]
 			j++
 			G.lenA[1]++
@@ -265,7 +265,7 @@ func (G *GCM) Add_plain(plain []byte, len int) []byte {
 		return nil
 	}
 
-	j := 0
+	j := int(0)
 	for j < len {
 
 		b[0] = G.a.f[12]
@@ -316,7 +316,7 @@ func (G *GCM) Add_cipher(cipher []byte, len int) []byte {
 		return nil
 	}
 
-	j := 0
+	j := int(0)
 	for j < len {
 		b[0] = G.a.f[12]
 		b[1] = G.a.f[13]
@@ -333,7 +333,7 @@ func (G *GCM) Add_cipher(cipher []byte, len int) []byte {
 			B[i] = G.a.f[i]
 		}
 		G.a.ecb_encrypt(B[:]) /* encrypt it  */
-		for i := 0; i < 16 && j < len; i++ {
+		for i := int(0); i < 16 && j < len; i++ {
 			oc := cipher[j]
 			plain[j] = (cipher[j] ^ B[i])
 			G.stateX[i] ^= oc

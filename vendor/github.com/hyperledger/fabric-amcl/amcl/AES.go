@@ -22,6 +22,7 @@ under the License.
 package amcl
 
 //import "fmt"
+type int int64
 
 const AES_ECB int = 0
 const AES_CBC int = 1
@@ -303,8 +304,9 @@ func (A *AES) Reset(m int, iv []byte) { /* reset mode, or reset iv */
 	}
 }
 
-func (A *AES) Init(m int, nk int, key []byte, iv []byte) bool {
+func (A *AES) Init(m1 int64, nk1 int64, key []byte, iv []byte) bool {
 	/* Key Scheduler. Create expanded encryption key */
+	m,nk:=int(m1),int(nk1)
 	var CipherKey [8]uint32
 	var b [4]byte
 	nk /= 4
@@ -317,27 +319,27 @@ func (A *AES) Init(m int, nk int, key []byte, iv []byte) bool {
 	A.Reset(m, iv)
 	N := 4 * (nr + 1)
 
-	j := 0
-	for i := 0; i < nk; i++ {
-		for k := 0; k < 4; k++ {
+	j := int(0)
+	for i := int(0); i < nk; i++ {
+		for k := int(0); k < 4; k++ {
 			b[k] = key[j+k]
 		}
 		CipherKey[i] = aes_pack(b)
 		j += 4
 	}
-	for i := 0; i < nk; i++ {
+	for i := int(0); i < nk; i++ {
 		A.fkey[i] = CipherKey[i]
 	}
 
 	j = nk
-	for k := 0; j < N; k++ {
+	for k := int(0); j < N; k++ {
 		A.fkey[j] = A.fkey[j-nk] ^ aes_SubByte(aes_ROTL24(A.fkey[j-1])) ^ uint32(aes_rco[k])
 		if nk<=6 {
-			for i := 1; i < nk && (i+j) < N; i++ {
+			for i := int(1); i < nk && (i+j) < N; i++ {
 				A.fkey[i+j] = A.fkey[i+j-nk] ^ A.fkey[i+j-1]
 			}
 		} else {
-			i:=0
+			i:=int(0)
 			for i = 1; i < 4 && (i + j) < N; i++ {
 				A.fkey[i + j] = A.fkey[i + j - nk] ^ A.fkey[i + j - 1];
 			}
@@ -354,16 +356,16 @@ func (A *AES) Init(m int, nk int, key []byte, iv []byte) bool {
 
 	/* now for the expanded decrypt key in reverse order */
 
-	for j := 0; j < 4; j++ {
+	for j := int(0); j < 4; j++ {
 		A.rkey[j+N-4] = A.fkey[j]
 	}
-	for i := 4; i < N-4; i += 4 {
-		k := N - 4 - i
-		for j := 0; j < 4; j++ {
+	for i := int(4); i < N-4; i += 4 {
+		k := int(N - 4 - i)
+		for j := int(0); j < 4; j++ {
 			A.rkey[k+j] = aes_InvMixCol(A.fkey[i+j])
 		}
 	}
-	for j := N - 4; j < N; j++ {
+	for j := int(N - 4); j < N; j++ {
 		A.rkey[j-N+4] = A.fkey[j]
 	}
 	return true
@@ -388,9 +390,9 @@ func (A *AES) ecb_encrypt(buff []byte) {
 	var p [4]uint32
 	var q [4]uint32
 
-	j := 0
-	for i := 0; i < 4; i++ {
-		for k := 0; k < 4; k++ {
+	j := int(0)
+	for i := int(0); i < 4; i++ {
+		for k := int(0); k < 4; k++ {
 			b[k] = buff[j+k]
 		}
 		p[i] = aes_pack(b)
@@ -398,10 +400,10 @@ func (A *AES) ecb_encrypt(buff []byte) {
 		j += 4
 	}
 
-	k := 4
+	k := int(4)
 
 	/* State alternates between p and q */
-	for i := 1; i < A.Nr; i++ {
+	for i := int(1); i < A.Nr; i++ {
 		q[0] = A.fkey[k] ^ aes_ftable[int(p[0]&0xff)] ^ aes_ROTL8(aes_ftable[int((p[1]>>8)&0xff)]) ^ aes_ROTL16(aes_ftable[int((p[2]>>16)&0xff)]) ^ aes_ROTL24(aes_ftable[int((p[3]>>24)&0xff)])
 
 		q[1] = A.fkey[k+1] ^ aes_ftable[int(p[1]&0xff)] ^ aes_ROTL8(aes_ftable[int((p[2]>>8)&0xff)]) ^ aes_ROTL16(aes_ftable[int((p[3]>>16)&0xff)]) ^ aes_ROTL24(aes_ftable[int((p[0]>>24)&0xff)])
@@ -429,7 +431,7 @@ func (A *AES) ecb_encrypt(buff []byte) {
 	q[3] = A.fkey[k+3] ^ uint32(aes_fbsub[int(p[3]&0xff)]) ^ aes_ROTL8(uint32(aes_fbsub[int((p[0]>>8)&0xff)])) ^ aes_ROTL16(uint32(aes_fbsub[int((p[1]>>16)&0xff)])) ^ aes_ROTL24(uint32(aes_fbsub[int((p[2]>>24)&0xff)]))
 
 	j = 0
-	for i := 0; i < 4; i++ {
+	for i := int(0); i < 4; i++ {
 		b = aes_unpack(q[i])
 		for k = 0; k < 4; k++ {
 			buff[j+k] = b[k]
@@ -457,7 +459,7 @@ func (A *AES) ecb_decrypt(buff []byte) {
 	k := 4
 
 	/* State alternates between p and q */
-	for i := 1; i < A.Nr; i++ {
+	for i := int(1); i < A.Nr; i++ {
 
 		q[0] = A.rkey[k] ^ aes_rtable[int(p[0]&0xff)] ^ aes_ROTL8(aes_rtable[int((p[3]>>8)&0xff)]) ^ aes_ROTL16(aes_rtable[int((p[2]>>16)&0xff)]) ^ aes_ROTL24(aes_rtable[int((p[1]>>24)&0xff)])
 
@@ -521,8 +523,8 @@ func (A *AES) Encrypt(buff []byte) uint32 {
 	case AES_CFB2:
 		fallthrough
 	case AES_CFB4:
-		bytes := A.mode - AES_CFB1 + 1
-		for j := 0; j < bytes; j++ {
+		bytes := int(A.mode - AES_CFB1 + 1)
+		for j := int(0); j < bytes; j++ {
 			fell_off = (fell_off << 8) | uint32(A.f[j])
 		}
 		for j := 0; j < 16; j++ {
@@ -532,7 +534,7 @@ func (A *AES) Encrypt(buff []byte) uint32 {
 			A.f[j-bytes] = A.f[j]
 		}
 		A.ecb_encrypt(st[:])
-		for j := 0; j < bytes; j++ {
+		for j := int(0); j < bytes; j++ {
 			buff[j] ^= st[j]
 			A.f[16-bytes+j] = buff[j]
 		}
@@ -550,7 +552,7 @@ func (A *AES) Encrypt(buff []byte) uint32 {
 
 		bytes := A.mode - AES_OFB1 + 1
 		A.ecb_encrypt(A.f[:])
-		for j := 0; j < bytes; j++ {
+		for j := int(0); j < bytes; j++ {
 			buff[j] ^= A.f[j]
 		}
 		return 0
@@ -569,7 +571,7 @@ func (A *AES) Encrypt(buff []byte) uint32 {
 			st[j] = A.f[j]
 		}
 		A.ecb_encrypt(st[:])
-		for j := 0; j < bytes; j++ {
+		for j := int(0); j < bytes; j++ {
 			buff[j] ^= st[j]
 		}
 		aes_increment(A.f[:])
@@ -609,7 +611,7 @@ func (A *AES) Decrypt(buff []byte) uint32 {
 		fallthrough
 	case AES_CFB4:
 		bytes := A.mode - AES_CFB1 + 1
-		for j := 0; j < bytes; j++ {
+		for j := int(0); j < bytes; j++ {
 			fell_off = (fell_off << 8) | uint32(A.f[j])
 		}
 		for j := 0; j < 16; j++ {
@@ -619,7 +621,7 @@ func (A *AES) Decrypt(buff []byte) uint32 {
 			A.f[j-bytes] = A.f[j]
 		}
 		A.ecb_encrypt(st[:])
-		for j := 0; j < bytes; j++ {
+		for j := int(0); j < bytes; j++ {
 			A.f[16-bytes+j] = buff[j]
 			buff[j] ^= st[j]
 		}
@@ -635,7 +637,7 @@ func (A *AES) Decrypt(buff []byte) uint32 {
 	case AES_OFB16:
 		bytes := A.mode - AES_OFB1 + 1
 		A.ecb_encrypt(A.f[:])
-		for j := 0; j < bytes; j++ {
+		for j := int(0); j < bytes; j++ {
 			buff[j] ^= A.f[j]
 		}
 		return 0
@@ -654,7 +656,7 @@ func (A *AES) Decrypt(buff []byte) uint32 {
 			st[j] = A.f[j]
 		}
 		A.ecb_encrypt(st[:])
-		for j := 0; j < bytes; j++ {
+		for j := int(0); j < bytes; j++ {
 			buff[j] ^= st[j]
 		}
 		aes_increment(A.f[:])
@@ -667,7 +669,7 @@ func (A *AES) Decrypt(buff []byte) uint32 {
 
 /* Clean up and delete left-overs */
 func (A *AES) End() { // clean up
-	for i := 0; i < 4*(A.Nr+1); i++ {
+	for i := int(0); i < 4*(A.Nr+1); i++ {
 		A.fkey[i] = 0
 		A.rkey[i] = 0
 	}
